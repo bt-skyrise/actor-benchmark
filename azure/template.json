@@ -1,0 +1,530 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "namespaces_aborleans_name": {
+            "defaultValue": "aborleans",
+            "type": "String"
+        },
+        "storageAccounts_aborleans_name": {
+            "defaultValue": "aborleans",
+            "type": "String"
+        },
+        "managedClusters_ab_k8s_name": {
+            "defaultValue": "ab-k8s",
+            "type": "String"
+        },
+        "registries_abimgregistry_name": {
+            "defaultValue": "abimgregistry",
+            "type": "String"
+        },
+        "publicIPAddresses_fede5ea6_3328_4298_8b2c_69a6a7848948_externalid": {
+            "defaultValue": "",
+            "type": "String"
+        },
+        "userAssignedIdentities_ab_k8s_agentpool_externalid": {
+            "defaultValue": "",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "2021-12-01-preview",
+            "name": "[parameters('registries_abimgregistry_name')]",
+            "location": "northeurope",
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+            },
+            "properties": {
+                "adminUserEnabled": false,
+                "policies": {
+                    "quarantinePolicy": {
+                        "status": "disabled"
+                    },
+                    "trustPolicy": {
+                        "type": "Notary",
+                        "status": "disabled"
+                    },
+                    "retentionPolicy": {
+                        "days": 7,
+                        "status": "disabled"
+                    },
+                    "exportPolicy": {
+                        "status": "enabled"
+                    }
+                },
+                "encryption": {
+                    "status": "disabled"
+                },
+                "dataEndpointEnabled": false,
+                "publicNetworkAccess": "Enabled",
+                "networkRuleBypassOptions": "AzureServices",
+                "zoneRedundancy": "Disabled",
+                "anonymousPullEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.ContainerService/managedClusters",
+            "apiVersion": "2022-02-02-preview",
+            "name": "[parameters('managedClusters_ab_k8s_name')]",
+            "location": "northeurope",
+            "sku": {
+                "name": "Basic",
+                "tier": "Free"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "kubernetesVersion": "1.22.6",
+                "dnsPrefix": "[concat(parameters('managedClusters_ab_k8s_name'), '-dns')]",
+                "agentPoolProfiles": [
+                    {
+                        "name": "management",
+                        "count": 2,
+                        "vmSize": "Standard_B2ms",
+                        "osDiskSizeGB": 128,
+                        "osDiskType": "Managed",
+                        "kubeletDiskType": "OS",
+                        "maxPods": 110,
+                        "type": "VirtualMachineScaleSets",
+                        "enableAutoScaling": false,
+                        "scaleDownMode": "Delete",
+                        "powerState": {
+                            "code": "Running"
+                        },
+                        "orchestratorVersion": "1.22.6",
+                        "enableNodePublicIP": false,
+                        "nodeLabels": {
+                            "test-role": "management"
+                        },
+                        "mode": "System",
+                        "osType": "Linux",
+                        "osSKU": "Ubuntu",
+                        "upgradeSettings": {},
+                        "enableFIPS": false
+                    },
+                    {
+                        "name": "runner",
+                        "count": 3,
+                        "vmSize": "Standard_D4s_v4",
+                        "osDiskSizeGB": 128,
+                        "osDiskType": "Managed",
+                        "kubeletDiskType": "OS",
+                        "maxPods": 110,
+                        "type": "VirtualMachineScaleSets",
+                        "enableAutoScaling": false,
+                        "scaleDownMode": "Delete",
+                        "powerState": {
+                            "code": "Running"
+                        },
+                        "orchestratorVersion": "1.22.6",
+                        "enableNodePublicIP": false,
+                        "nodeLabels": {
+                            "test-role": "runner"
+                        },
+                        "mode": "User",
+                        "osType": "Linux",
+                        "osSKU": "Ubuntu",
+                        "upgradeSettings": {},
+                        "enableFIPS": false
+                    },
+                    {
+                        "name": "sut",
+                        "count": 3,
+                        "vmSize": "Standard_D4s_v5",
+                        "osDiskSizeGB": 128,
+                        "osDiskType": "Managed",
+                        "kubeletDiskType": "OS",
+                        "maxPods": 110,
+                        "type": "VirtualMachineScaleSets",
+                        "enableAutoScaling": false,
+                        "scaleDownMode": "Delete",
+                        "powerState": {
+                            "code": "Running"
+                        },
+                        "orchestratorVersion": "1.22.6",
+                        "enableNodePublicIP": false,
+                        "nodeLabels": {
+                            "test-role": "sut"
+                        },
+                        "mode": "User",
+                        "osType": "Linux",
+                        "osSKU": "Ubuntu",
+                        "upgradeSettings": {},
+                        "enableFIPS": false
+                    }
+                ],
+                "servicePrincipalProfile": {
+                    "clientId": "msi"
+                },
+                "addonProfiles": {
+                    "azureKeyvaultSecretsProvider": {
+                        "enabled": false
+                    },
+                    "azurepolicy": {
+                        "enabled": false
+                    },
+                    "httpApplicationRouting": {
+                        "enabled": false
+                    }
+                },
+                "nodeResourceGroup": "[concat('MC_ActorBenchmark_', parameters('managedClusters_ab_k8s_name'), '_northeurope')]",
+                "enableRBAC": false,
+                "networkProfile": {
+                    "networkPlugin": "kubenet",
+                    "loadBalancerSku": "Standard",
+                    "loadBalancerProfile": {
+                        "managedOutboundIPs": {
+                            "count": 1
+                        },
+                        "effectiveOutboundIPs": [
+                            {
+                                "id": "[parameters('publicIPAddresses_fede5ea6_3328_4298_8b2c_69a6a7848948_externalid')]"
+                            }
+                        ]
+                    },
+                    "podCidr": "10.244.0.0/16",
+                    "serviceCidr": "10.0.0.0/16",
+                    "dnsServiceIP": "10.0.0.10",
+                    "dockerBridgeCidr": "172.17.0.1/16",
+                    "outboundType": "loadBalancer"
+                },
+                "apiServerAccessProfile": {
+                    "enablePrivateCluster": false
+                },
+                "identityProfile": {
+                    "kubeletidentity": {
+                        "resourceId": "[parameters('userAssignedIdentities_ab_k8s_agentpool_externalid')]",
+                        "clientId": "10508a22-215e-49f7-b45f-d5f2a384aed5",
+                        "objectId": "2e08feca-6696-414a-96c8-ccb99200cf5e"
+                    }
+                },
+                "securityProfile": {},
+                "oidcIssuerProfile": {
+                    "enabled": false
+                }
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces",
+            "apiVersion": "2021-11-01",
+            "name": "[parameters('namespaces_aborleans_name')]",
+            "location": "West Europe",
+            "sku": {
+                "name": "Standard",
+                "tier": "Standard"
+            },
+            "properties": {
+                "disableLocalAuth": false,
+                "zoneRedundant": false
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2021-09-01",
+            "name": "[parameters('storageAccounts_aborleans_name')]",
+            "location": "northeurope",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "defaultToOAuthAuthentication": false,
+                "allowCrossTenantReplication": true,
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": true,
+                "allowSharedKeyAccess": true,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "requireInfrastructureEncryption": false,
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Hot"
+            }
+        },
+        {
+            "type": "Microsoft.ContainerService/managedClusters/agentPools",
+            "apiVersion": "2022-02-02-preview",
+            "name": "[concat(parameters('managedClusters_ab_k8s_name'), '/management')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', parameters('managedClusters_ab_k8s_name'))]"
+            ],
+            "properties": {
+                "count": 2,
+                "vmSize": "Standard_B2ms",
+                "osDiskSizeGB": 128,
+                "osDiskType": "Managed",
+                "kubeletDiskType": "OS",
+                "maxPods": 110,
+                "type": "VirtualMachineScaleSets",
+                "enableAutoScaling": false,
+                "scaleDownMode": "Delete",
+                "powerState": {
+                    "code": "Running"
+                },
+                "orchestratorVersion": "1.22.6",
+                "enableNodePublicIP": false,
+                "nodeLabels": {
+                    "test-role": "management"
+                },
+                "mode": "System",
+                "osType": "Linux",
+                "osSKU": "Ubuntu",
+                "upgradeSettings": {},
+                "enableFIPS": false
+            }
+        },
+        {
+            "type": "Microsoft.ContainerService/managedClusters/agentPools",
+            "apiVersion": "2022-02-02-preview",
+            "name": "[concat(parameters('managedClusters_ab_k8s_name'), '/runner')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', parameters('managedClusters_ab_k8s_name'))]"
+            ],
+            "properties": {
+                "count": 3,
+                "vmSize": "Standard_D4s_v4",
+                "osDiskSizeGB": 128,
+                "osDiskType": "Managed",
+                "kubeletDiskType": "OS",
+                "maxPods": 110,
+                "type": "VirtualMachineScaleSets",
+                "enableAutoScaling": false,
+                "scaleDownMode": "Delete",
+                "powerState": {
+                    "code": "Running"
+                },
+                "orchestratorVersion": "1.22.6",
+                "enableNodePublicIP": false,
+                "nodeLabels": {
+                    "test-role": "runner"
+                },
+                "mode": "User",
+                "osType": "Linux",
+                "osSKU": "Ubuntu",
+                "upgradeSettings": {},
+                "enableFIPS": false
+            }
+        },
+        {
+            "type": "Microsoft.ContainerService/managedClusters/agentPools",
+            "apiVersion": "2022-02-02-preview",
+            "name": "[concat(parameters('managedClusters_ab_k8s_name'), '/sut')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ContainerService/managedClusters', parameters('managedClusters_ab_k8s_name'))]"
+            ],
+            "properties": {
+                "count": 3,
+                "vmSize": "Standard_D4s_v5",
+                "osDiskSizeGB": 128,
+                "osDiskType": "Managed",
+                "kubeletDiskType": "OS",
+                "maxPods": 110,
+                "type": "VirtualMachineScaleSets",
+                "enableAutoScaling": false,
+                "scaleDownMode": "Delete",
+                "powerState": {
+                    "code": "Running"
+                },
+                "orchestratorVersion": "1.22.6",
+                "enableNodePublicIP": false,
+                "nodeLabels": {
+                    "test-role": "sut"
+                },
+                "mode": "User",
+                "osType": "Linux",
+                "osSKU": "Ubuntu",
+                "upgradeSettings": {},
+                "enableFIPS": false
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/AuthorizationRules",
+            "apiVersion": "2021-11-01",
+            "name": "[concat(parameters('namespaces_aborleans_name'), '/RootManageSharedAccessKey')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_aborleans_name'))]"
+            ],
+            "properties": {
+                "rights": [
+                    "Listen",
+                    "Manage",
+                    "Send"
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/networkRuleSets",
+            "apiVersion": "2021-11-01",
+            "name": "[concat(parameters('namespaces_aborleans_name'), '/default')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_aborleans_name'))]"
+            ],
+            "properties": {
+                "publicNetworkAccess": "Enabled",
+                "defaultAction": "Allow",
+                "virtualNetworkRules": [],
+                "ipRules": []
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/topics",
+            "apiVersion": "2021-11-01",
+            "name": "[concat(parameters('namespaces_aborleans_name'), '/testrunner.contract~runactivationtest')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_aborleans_name'))]"
+            ],
+            "properties": {
+                "maxMessageSizeInKilobytes": 256,
+                "defaultMessageTimeToLive": "P366D",
+                "maxSizeInMegabytes": 1024,
+                "requiresDuplicateDetection": false,
+                "duplicateDetectionHistoryTimeWindow": "PT10M",
+                "enableBatchedOperations": true,
+                "status": "Active",
+                "supportOrdering": false,
+                "autoDeleteOnIdle": "P427D",
+                "enablePartitioning": false,
+                "enableExpress": false
+            }
+        },
+        {
+            "type": "Microsoft.ServiceBus/namespaces/topics",
+            "apiVersion": "2021-11-01",
+            "name": "[concat(parameters('namespaces_aborleans_name'), '/testrunner.contract~runmessagingtest')]",
+            "location": "West Europe",
+            "dependsOn": [
+                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_aborleans_name'))]"
+            ],
+            "properties": {
+                "maxMessageSizeInKilobytes": 256,
+                "defaultMessageTimeToLive": "P366D",
+                "maxSizeInMegabytes": 1024,
+                "requiresDuplicateDetection": false,
+                "duplicateDetectionHistoryTimeWindow": "PT10M",
+                "enableBatchedOperations": true,
+                "status": "Active",
+                "supportOrdering": false,
+                "autoDeleteOnIdle": "P427D",
+                "enablePartitioning": false,
+                "enableExpress": false
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/blobServices",
+            "apiVersion": "2021-09-01",
+            "name": "[concat(parameters('storageAccounts_aborleans_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aborleans_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                },
+                "deleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                },
+                "isVersioningEnabled": false,
+                "changeFeed": {
+                    "enabled": false
+                },
+                "restorePolicy": {
+                    "enabled": false
+                },
+                "containerDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/fileServices",
+            "apiVersion": "2021-09-01",
+            "name": "[concat(parameters('storageAccounts_aborleans_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aborleans_name'))]"
+            ],
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "properties": {
+                "protocolSettings": {
+                    "smb": {}
+                },
+                "cors": {
+                    "corsRules": []
+                },
+                "shareDeleteRetentionPolicy": {
+                    "enabled": true,
+                    "days": 7
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/queueServices",
+            "apiVersion": "2021-09-01",
+            "name": "[concat(parameters('storageAccounts_aborleans_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aborleans_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices",
+            "apiVersion": "2021-09-01",
+            "name": "[concat(parameters('storageAccounts_aborleans_name'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aborleans_name'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+            "apiVersion": "2021-09-01",
+            "name": "[concat(parameters('storageAccounts_aborleans_name'), '/default/OrleansSiloInstances')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', parameters('storageAccounts_aborleans_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_aborleans_name'))]"
+            ],
+            "properties": {}
+        }
+    ]
+}

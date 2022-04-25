@@ -1,0 +1,32 @@
+# Stage 1 - Prepare base image
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 as base
+WORKDIR /app
+
+RUN addgroup --system --gid 101 app \
+    && adduser --system --ingroup app --uid 101 app 
+
+ENV ASPNETCORE_URLS=http://*:5000
+EXPOSE 5000
+
+# Stage 2 - Build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
+
+WORKDIR /app/src
+
+COPY *.sln ./
+COPY */*.csproj ./  
+RUN for file in $(ls *.csproj); do mkdir -p ${file%.*}/ && mv $file ${file%.*}/; done
+
+RUN dotnet restore -r linux-x64
+
+# Build
+COPY . .
+RUN dotnet publish -c Release -o /app/publish -r linux-x64 --no-self-contained --no-restore TestRunner
+
+# Stage 3 - Publish
+FROM base as final
+
+COPY --from=builder --chown=app:app /app/publish .
+
+USER app  
+ENTRYPOINT ["./TestRunner"]

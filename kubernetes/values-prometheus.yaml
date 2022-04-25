@@ -1,0 +1,55 @@
+﻿rbac:
+  create: false
+  
+alertmanager:
+  enabled: false
+  
+configmapReload:
+  enabled: true
+  
+kubeStateMetrics:
+  enabled: true
+
+kube-state-metrics:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: test-role
+                operator: In
+                values:
+                  - management
+                  
+nodeExporter:
+  enabled: true
+  
+server:
+  enabled: true
+  global:
+    scrape_interval: 15s
+  
+  persistentVolume:
+    enabled: true
+    storageClass: managed
+    size: 8Gi
+  
+  strategy:
+    type: Recreate
+    
+  resources:
+    limits:
+      memory: 2Gi
+    
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: test-role
+                operator: In
+                values:
+                  - management
+  
+pushgateway:
+  enabled: false

@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-runner
+  labels:
+    app: test-runner
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test-runner
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '5000'
+      labels:
+        app: test-runner
+    spec:
+      containers:
+        - name: main
+          image: abimgregistry.azurecr.io/test-runner:latest
+          imagePullPolicy: Always
+          env:
+            - name: ActorFramework
+              value: Akka
+            - name: Akka__ActorSystemName
+              value: actor-benchmark
+            - name: Akka__PublicHostname
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: Akka__Port
+              value: "4053"
+            - name: Akka__SeedNodes__0
+              value: lighthouse-0.lighthouse:4053
+            - name: Akka__SeedNodes__1
+              value: lighthouse-1.lighthouse:4053
+            - name: Bus__ServiceBusConnectionString
+              value: _servicebus_connection_string_
+            - name: SeqUrl
+              value: http://my-seq.seq:5341
+      terminationGracePeriodSeconds: 180
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: test-role
+                    operator: In
+                    values:
+                      - runner
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - test-runner
+            

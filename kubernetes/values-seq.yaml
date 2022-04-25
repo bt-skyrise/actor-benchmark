@@ -1,0 +1,17 @@
+resources:
+  limits:
+    memory: 1Gi
+    
+persistence:
+  storageClass: managed
+  size: 8Gi
+  
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: test-role
+              operator: In
+              values:
+                - management

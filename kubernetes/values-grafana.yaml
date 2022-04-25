@@ -1,0 +1,43 @@
+﻿rbac:
+  create: false
+  
+serviceAccount:
+  create: false
+  
+testFramework:
+  enabled: false
+
+persistence:
+  enabled: true
+  size: 4Gi
+  storageClassName: managed
+  
+env: 
+  GF_AUTH_ANONYMOUS_ENABLED: 'true'
+  GF_AUTH_ANONYMOUS_ORG_ROLE: 'Admin'
+    
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        uid: my_prometheus
+        url: http://my-prometheus-server.prometheus
+        access: proxy
+        isDefault: true
+        editable: true
+        jsonData:
+          timeInterval: 15s
+  
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: test-role
+              operator: In
+              values:
+                - management
+                  
+  

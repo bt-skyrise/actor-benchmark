@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: proto-actor-sut
+  labels:
+    app: proto-actor-sut
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: proto-actor-sut
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'false'
+      labels:
+        app: proto-actor-sut
+    spec:
+      containers:
+        - name: main
+          image: abimgregistry.azurecr.io/proto-actor-sut:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 12121
+          env:
+            - name: SeqUrl
+              value: http://my-seq.seq:5341
+            - name: ProtoActor__ClusterName
+              value: actor-benchmark
+            - name: ProtoActor__AdvertisedHost
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP            
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: test-role
+                    operator: In
+                    values:
+                      - sut
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - proto-actor-sut
+            

@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: akka-sut
+  labels:
+    app: akka-sut
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: akka-sut
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "false"
+      labels:
+        app: akka-sut
+    spec:
+      containers:
+        - name: main
+          image: abimgregistry.azurecr.io/akka-sut:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4053
+          env:
+            - name: SeqUrl
+              value: http://my-seq.seq:5341
+            - name: Akka__ActorSystemName
+              value: actor-benchmark
+            - name: Akka__PublicHostname
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: Akka__Port
+              value: "4053"
+            - name: Akka__SeedNodes__0
+              value: lighthouse-0.lighthouse:4053
+            - name: Akka__SeedNodes__1
+              value: lighthouse-1.lighthouse:4053
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: test-role
+                    operator: In
+                    values:
+                      - sut
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - akka-sut
+            

@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "namespaces_aborleans_name": {
+            "value": null
+        },
+        "storageAccounts_aborleans_name": {
+            "value": null
+        },
+        "managedClusters_ab_k8s_name": {
+            "value": null
+        },
+        "registries_abimgregistry_name": {
+            "value": null
+        },
+        "publicIPAddresses_fede5ea6_3328_4298_8b2c_69a6a7848948_externalid": {
+            "value": null
+        },
+        "userAssignedIdentities_ab_k8s_agentpool_externalid": {
+            "value": null
+        }
+    }
+}
