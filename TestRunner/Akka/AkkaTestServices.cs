@@ -13,8 +13,11 @@ public class AkkaTestServices
         _shard = clusterSharding.ShardRegion(Consts.PingPongShardTypeName);
     }
 
-    public async Task Ping(string id, string name)
+    public async Task Ping(object handle, string name)
     {
+        var id = handle as string ??
+                    throw new ArgumentException("Handle needs to be of type string", nameof(handle));
+        
         var pong = await _shard.Ask<PongMessage>(new PingMessage(id, name));
         
         var expectedResponse = "Hello " + name;
@@ -23,5 +26,9 @@ public class AkkaTestServices
             throw new Exception($"Received response '{pong.Response}' but expected '{expectedResponse}'");
     }
 
-    public Task Activate(string id) => _shard.Ask<PongMessage>(new PingMessage(id, ""));
+    public async Task<object> Activate(string id)
+    {
+        await _shard.Ask<PongMessage>(new PingMessage(id, ""));
+        return id;
+    }
 }

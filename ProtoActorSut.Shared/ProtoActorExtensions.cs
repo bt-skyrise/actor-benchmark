@@ -1,9 +1,5 @@
-﻿using System.IO.Compression;
-using Grpc.Net.Client;
-using Grpc.Net.Compression;
-using Proto;
+﻿using Proto;
 using Proto.Cluster;
-using Proto.Cluster.Cache;
 using Proto.Cluster.Consul;
 using Proto.Cluster.Kubernetes;
 using Proto.Cluster.Partition;

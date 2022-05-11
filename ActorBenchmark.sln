@@ -18,6 +18,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaSut.Shared", "AkkaSut.S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AkkaSut.Server", "AkkaSut.Server\AkkaSut.Server.csproj", "{13525A3A-CBEA-43E2-B698-D0F855D6F42F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaprSut.Shared", "DaprSut.Shared\DaprSut.Shared.csproj", "{F341BDC0-47B9-4A4E-99DE-0085D2F5F519}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaprSut.Server", "DaprSut.Server\DaprSut.Server.csproj", "{43BCB7F4-DAD6-4ABA-831C-38F2096167D0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -60,5 +64,13 @@ Global
 		{13525A3A-CBEA-43E2-B698-D0F855D6F42F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13525A3A-CBEA-43E2-B698-D0F855D6F42F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13525A3A-CBEA-43E2-B698-D0F855D6F42F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F341BDC0-47B9-4A4E-99DE-0085D2F5F519}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F341BDC0-47B9-4A4E-99DE-0085D2F5F519}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F341BDC0-47B9-4A4E-99DE-0085D2F5F519}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F341BDC0-47B9-4A4E-99DE-0085D2F5F519}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43BCB7F4-DAD6-4ABA-831C-38F2096167D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43BCB7F4-DAD6-4ABA-831C-38F2096167D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43BCB7F4-DAD6-4ABA-831C-38F2096167D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43BCB7F4-DAD6-4ABA-831C-38F2096167D0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

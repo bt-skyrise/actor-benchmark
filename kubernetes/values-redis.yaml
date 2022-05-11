@@ -1,0 +1,16 @@
+architecture: standalone
+auth:
+  enabled: false
+  
+master:
+  persistence:
+    enabled: false
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: test-role
+                operator: In
+                values:
+                  - management

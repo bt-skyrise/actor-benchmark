@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dapr-sut
+  labels:
+    app: dapr-sut
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dapr-sut
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "false"
+        dapr.io/enabled: "true"
+        dapr.io/app-id: actor-benchmark
+        dapr.io/app-port: "5000"
+        dapr.io/config: actor-benchmark-config
+      labels:
+        app: dapr-sut
+        orleans/serviceId: actor-benchmark
+        orleans/clusterId: actor-benchmark
+    spec:
+      containers:
+        - name: main
+          image: abimgregistry.azurecr.io/dapr-sut:latest
+          imagePullPolicy: Always
+          env:
+            - name: SeqUrl
+              value: http://my-seq.seq:5341
+      terminationGracePeriodSeconds: 180
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: test-role
+                    operator: In
+                    values:
+                      - sut
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - dapr-sut
+            

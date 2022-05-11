@@ -27,6 +27,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AkkaSut.Shared\AkkaSut.Shared.csproj" />
+      <ProjectReference Include="..\DaprSut.Shared\DaprSut.Shared.csproj" />
       <ProjectReference Include="..\OrleansSut.Shared\OrleansSut.Shared.csproj" />
       <ProjectReference Include="..\ProtoActorSut.Shared\ProtoActorSut.Shared.csproj" />
       <ProjectReference Include="..\TestRunner.Contract\TestRunner.Contract.csproj" />

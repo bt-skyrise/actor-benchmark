@@ -12,10 +12,10 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Proto.Cluster" Version="0.28.1-alpha.0.51" />
-        <PackageReference Include="Proto.Cluster.CodeGen" Version="0.28.1-alpha.0.51" />
-        <PackageReference Include="Proto.Cluster.Consul" Version="0.28.1-alpha.0.51" />
-        <PackageReference Include="Proto.Cluster.Kubernetes" Version="0.28.1-alpha.0.51" />
+        <PackageReference Include="Proto.Cluster" Version="0.29" />
+        <PackageReference Include="Proto.Cluster.CodeGen" Version="0.29" />
+        <PackageReference Include="Proto.Cluster.Consul" Version="0.29" />
+        <PackageReference Include="Proto.Cluster.Kubernetes" Version="0.29" />
     </ItemGroup>
 
     <ItemGroup>

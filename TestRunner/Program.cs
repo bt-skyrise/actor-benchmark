@@ -7,6 +7,7 @@ using ProtoActorSut.Shared;
 using Serilog;
 using TestRunner.Akka;
 using TestRunner.Bus;
+using TestRunner.Dapr;
 using TestRunner.Monitoring;
 using TestRunner.Orleans;
 using TestRunner.ProtoActor;
@@ -41,6 +42,9 @@ try
                 .AddAkkaClusterSharding()
                 .AddAkkaClusterProxyHostedService()
                 .AddAkkaTestServices();
+            break;
+        case "Dapr":
+            builder.AddDaprTestServices();
             break;
         default:
             throw new ConfigurationErrorsException("Unknown framework " + actorFramework);

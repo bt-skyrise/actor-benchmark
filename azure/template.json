@@ -173,7 +173,7 @@
                     }
                 },
                 "nodeResourceGroup": "[concat('MC_ActorBenchmark_', parameters('managedClusters_ab_k8s_name'), '_northeurope')]",
-                "enableRBAC": false,
+                "enableRBAC": true,
                 "networkProfile": {
                     "networkPlugin": "kubenet",
                     "loadBalancerSku": "Standard",
@@ -388,50 +388,6 @@
                 "defaultAction": "Allow",
                 "virtualNetworkRules": [],
                 "ipRules": []
-            }
-        },
-        {
-            "type": "Microsoft.ServiceBus/namespaces/topics",
-            "apiVersion": "2021-11-01",
-            "name": "[concat(parameters('namespaces_aborleans_name'), '/testrunner.contract~runactivationtest')]",
-            "location": "West Europe",
-            "dependsOn": [
-                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_aborleans_name'))]"
-            ],
-            "properties": {
-                "maxMessageSizeInKilobytes": 256,
-                "defaultMessageTimeToLive": "P366D",
-                "maxSizeInMegabytes": 1024,
-                "requiresDuplicateDetection": false,
-                "duplicateDetectionHistoryTimeWindow": "PT10M",
-                "enableBatchedOperations": true,
-                "status": "Active",
-                "supportOrdering": false,
-                "autoDeleteOnIdle": "P427D",
-                "enablePartitioning": false,
-                "enableExpress": false
-            }
-        },
-        {
-            "type": "Microsoft.ServiceBus/namespaces/topics",
-            "apiVersion": "2021-11-01",
-            "name": "[concat(parameters('namespaces_aborleans_name'), '/testrunner.contract~runmessagingtest')]",
-            "location": "West Europe",
-            "dependsOn": [
-                "[resourceId('Microsoft.ServiceBus/namespaces', parameters('namespaces_aborleans_name'))]"
-            ],
-            "properties": {
-                "maxMessageSizeInKilobytes": 256,
-                "defaultMessageTimeToLive": "P366D",
-                "maxSizeInMegabytes": 1024,
-                "requiresDuplicateDetection": false,
-                "duplicateDetectionHistoryTimeWindow": "PT10M",
-                "enableBatchedOperations": true,
-                "status": "Active",
-                "supportOrdering": false,
-                "autoDeleteOnIdle": "P427D",
-                "enablePartitioning": false,
-                "enableExpress": false
             }
         },
         {

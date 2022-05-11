@@ -17,18 +17,25 @@ public class ActivationTest
 
     public async Task RunTest(int activationCount, int parallelism, CancellationToken cancel)
     {
-        _logger.LogInformation(
-            "Starting activation test with activation count = {ActivationCount}, parallelism = {Parallelism}",
-            activationCount, parallelism);
+        try
+        {
+            _logger.LogInformation(
+                "Starting activation test with activation count = {ActivationCount}, parallelism = {Parallelism}",
+                activationCount, parallelism);
 
-        _logger.LogInformation("Preparing {ActivationCount} actor ids", activationCount);
-        var actorIds = await PrepareActorIds(activationCount);
+            _logger.LogInformation("Preparing {ActivationCount} actor ids", activationCount);
+            var actorIds = await PrepareActorIds(activationCount);
         
-        var testDuration = await TestWorker(actorIds, parallelism, cancel);
+            var testDuration = await TestWorker(actorIds, parallelism, cancel);
 
-        _logger.LogInformation(
-            "Activation test completed, total activations = {TotalActivations}, duration = {TestDuration}, Throughput = {Throughput:F2} actors/s",
-            activationCount, testDuration, activationCount / testDuration.TotalSeconds);
+            _logger.LogInformation(
+                "Activation test completed, total activations = {TotalActivations}, duration = {TestDuration}, Throughput = {Throughput:F2} actors/s",
+                activationCount, testDuration, activationCount / testDuration.TotalSeconds);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Activation test failed");
+        }
     }
 
     static async Task<ChannelReader<string>> PrepareActorIds(int count)

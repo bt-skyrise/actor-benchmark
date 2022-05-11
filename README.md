@@ -6,6 +6,7 @@
 2. Docker Desktop
 3. kubectx
 4. helm
+5. Dapr CLI (install then run with `dapr run --app-id myapp --app-port 5071 --dapr-http-port 3500`)
 
 ### Azure
 
@@ -19,7 +20,7 @@ Create following Azure resources:
    1. 2 node system pool, B2ms, label: `test-role=management`
    2. 3 node user pool, D4, label: `test-role=sut`
    3. 3 node user pool, D4, label: `test-role=runner`
-   4. No RBAC
+   4. No availability zones
    5. No Azure monitoring
    6. Be sure to connect it with ACR upon creation
 
@@ -41,10 +42,9 @@ az aks get-credentials -n ab-k8s -g ActorBenchmark
 Used for central logging. 
 
 ```shell
-kubectl create namespace seq
 helm repo add datalust https://helm.datalust.co
 helm repo update
-helm install my-seq -f kubernetes/values-seq.yaml -n seq datalust/seq
+helm install my-seq -f kubernetes/values-seq.yaml -n seq --create-namespace datalust/seq
 ```
 
 You can connect to seq by forwarding a port, e.g.:
@@ -57,19 +57,17 @@ Then open http://localhost:5241
 ### Prometheus
 
 ```shell
-kubeclt create namespace prometheus
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install -n prometheus -f kubernetes/values-prometheus.yaml my-prometheus prometheus-community/prometheus
+helm install -n prometheus --create-namespace -f kubernetes/values-prometheus.yaml my-prometheus prometheus-community/prometheus
 ```
 
 ### Grafana
 
 ```shell
-kubectl create namespace grafana
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
-helm install -n grafana -f kubernetes/values-grafana.yaml my-grafana grafana/grafana
+helm install -n grafana --create-namespace -f kubernetes/values-grafana.yaml my-grafana grafana/grafana
 ```
 
 You can connect to Grafana by forwarding a port, e.g.:
@@ -79,9 +77,6 @@ kubectl port-forward service/my-grafana -n grafana 3000:80
 ```
 
 Then open http://localhost:3000
-
-Add datasource of type Prometheus, pointing to http://my-prometheus-server.prometheus 
-Then import dashboards from the repo's [grafana](grafana) directory.
 
 ## Deploy benchmark to k8s
 
@@ -109,6 +104,7 @@ cd docker
 ./image-orleans-sut.sh
 ./image-proto-actor-sut.sh
 ./image-akka-sut.sh
+./image-dapr-sut.sh
 ./image-test-runner.sh
 ```
 
@@ -180,4 +176,40 @@ Replace Azure Service bus connection string in `kubernetes/deployment-test-runne
 
 ```shell
 kubectl apply -n benchmark -f kubernetes/deployment-test-runner-akka.yaml
+```
+
+### Dapr tests
+
+#### Dapr environment
+
+You'll need a Redis deployment
+```shell
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm install -n redis --create-namespace -f kubernetes/values-redis.yaml my-redis bitnami/redis
+```
+
+You'll also need to install Dapr in the cluster
+```shell
+helm repo add dapr https://dapr.github.io/helm-charts/
+helm repo update
+helm install -n dapr --create-namespace -f kubernetes/values-dapr.yaml my-dapr dapr/dapr
+kubectl apply -n benchmark -f kubernetes/dapr-state-store.yaml
+kubectl apply -n benchmark -f kubernetes/dapr-app-config.yaml
+```
+
+#### Dapr SUT
+
+```shell
+kubectl apply -n benchmark -f kubernetes/deployment-dapr-sut.yaml
+```
+
+#### Test runner - for Dapr test
+
+*Note: Only one configuration of test runner can be deployed at a time.*
+
+Replace Azure Service bus connection string in `kubernetes/deployment-test-runner-akka.yaml`
+
+```shell
+kubectl apply -n benchmark -f kubernetes/deployment-test-runner-dapr.yaml
 ```

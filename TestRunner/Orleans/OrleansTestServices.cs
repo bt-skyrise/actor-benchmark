@@ -9,9 +9,11 @@ public class OrleansTestServices
 
     public OrleansTestServices(IClusterClient client) => _client = client;
 
-    public async Task Ping(string id, string name)
+    public async Task Ping(object handle, string name)
     {
-        var grain = _client.GetGrain<IPingPongGrain>(id);
+        var grain = handle as IPingPongGrain ??
+                    throw new ArgumentException($"Handle needs to be of type {nameof(IPingPongGrain)}", nameof(handle));
+        
         var pong = await grain.Ping(new PingMessage(name));
 
         var expectedResponse = "Hello " + name;
@@ -20,9 +22,10 @@ public class OrleansTestServices
             throw new Exception($"Received response '{pong.Response}' but expected '{expectedResponse}'");
     }
 
-    public async Task Activate(string id)
+    public async Task<object> Activate(string id)
     {
         var grain = _client.GetGrain<IPingPongGrain>(id);
         await grain.Ping(new PingMessage(string.Empty));
+        return grain;
     }
 }

@@ -1,5 +1,5 @@
 ﻿namespace TestRunner.Tests;
 
-public delegate Task Ping(string id, string name);
+public delegate Task Ping(object handle, string name);
 
-public delegate Task Activate(string id);
+public delegate Task<object> Activate(string id);
