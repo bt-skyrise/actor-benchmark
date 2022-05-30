@@ -12,4 +12,13 @@ public static class ProtoActorExtensions
 
         return builder;
     }
+    
+    public static WebApplicationBuilder AddProtoActorTestServicesRaw(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddSingleton<ProtoActorTestServicesRaw>();
+        builder.Services.AddSingleton<Ping>(provider => provider.GetRequiredService<ProtoActorTestServicesRaw>().Ping);
+        builder.Services.AddSingleton<Activate>(provider => provider.GetRequiredService<ProtoActorTestServicesRaw>().Activate);
+
+        return builder;
+    }
 }

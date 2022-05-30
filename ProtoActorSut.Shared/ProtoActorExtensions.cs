@@ -1,4 +1,7 @@
-﻿using Proto;
+﻿using System.IO.Compression;
+using Grpc.Net.Client;
+using Grpc.Net.Compression;
+using Proto;
 using Proto.Cluster;
 using Proto.Cluster.Consul;
 using Proto.Cluster.Kubernetes;
@@ -12,7 +15,7 @@ namespace ProtoActorSut.Shared;
 public static class ProtoActorExtensions
 {
     public static WebApplicationBuilder AddProtoActor(this WebApplicationBuilder builder,
-        (string Kind, Props Props)? actor = null)
+        params (string Kind, Props Props)[] kinds)
     {
         builder.Services.AddSingleton(provider =>
         {
@@ -33,8 +36,10 @@ public static class ProtoActorExtensions
             var clusterConfig = ClusterConfig
                 .Setup(config["ClusterName"], clusterProvider, new PartitionIdentityLookup());
 
-            if (actor != null)
-                clusterConfig = clusterConfig.WithClusterKind(actor.Value.Kind, actor.Value.Props);
+            foreach (var kind in kinds)
+            {
+                clusterConfig = clusterConfig.WithClusterKind(kind.Kind, kind.Props);
+            }
 
             system
                 .WithServiceProvider(provider)
@@ -61,6 +66,14 @@ public static class ProtoActorExtensions
 
         var remoteConfig = GrpcNetRemoteConfig
             .BindToAllInterfaces(config["AdvertisedHost"], config.GetValue("AdvertisedPort", 0))
+            // .WithChannelOptions(new GrpcChannelOptions
+            //     {
+            //         CompressionProviders = new[]
+            //         {
+            //             new GzipCompressionProvider(CompressionLevel.Fastest)
+            //         }
+            //     }
+            // )
             .WithProtoMessages(Contracts.ProtosReflection.Descriptor)
             .WithLogLevelForDeserializationErrors(LogLevel.Critical);
 

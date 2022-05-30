@@ -15,11 +15,10 @@ builder.Host.UseSerilog((_, lcfg) =>
         .Enrich.WithMachineName()
         .Enrich.WithProperty("Service", Assembly.GetExecutingAssembly().GetName().Name));
 
-var pingPongProps = Props
-    .FromProducer(() => new PingPongActorActor((c, _) => new PingPongActor(c)));
 
-builder.AddProtoActor((PingPongActorActor.Kind, pingPongProps));
+builder.AddProtoActor(
+    (PingPongActorActor.Kind, Props.FromProducer(() => new PingPongActorActor((c, _) => new PingPongActor(c)))),
+    (Consts.PingPongRawKind, Props.FromProducer(() => new PingPongActorRaw())));
 
 var app = builder.Build();
 app.Run();
-

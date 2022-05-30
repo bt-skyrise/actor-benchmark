@@ -37,6 +37,11 @@ try
                 .AddProtoActor()
                 .AddProtoActorTestServices();
             break;
+        case "ProtoActorRaw":
+            builder
+                .AddProtoActor()
+                .AddProtoActorTestServicesRaw();
+            break;
         case "Akka":
             builder
                 .AddAkkaClusterSharding()
