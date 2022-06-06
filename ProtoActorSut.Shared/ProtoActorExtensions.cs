@@ -66,14 +66,14 @@ public static class ProtoActorExtensions
 
         var remoteConfig = GrpcNetRemoteConfig
             .BindToAllInterfaces(config["AdvertisedHost"], config.GetValue("AdvertisedPort", 0))
-            // .WithChannelOptions(new GrpcChannelOptions
-            //     {
-            //         CompressionProviders = new[]
-            //         {
-            //             new GzipCompressionProvider(CompressionLevel.Fastest)
-            //         }
-            //     }
-            // )
+            .WithChannelOptions(new GrpcChannelOptions
+                {
+                    CompressionProviders = new[]
+                    {
+                        new GzipCompressionProvider(CompressionLevel.Fastest)
+                    }
+                }
+            )
             .WithProtoMessages(Contracts.ProtosReflection.Descriptor)
             .WithLogLevelForDeserializationErrors(LogLevel.Critical);
 
