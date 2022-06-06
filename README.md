@@ -1,12 +1,15 @@
+# .NET virtual actor frameworks benchmark
+
+This benchmark compares messaging throughput and activation time of popular .NET virtual actor frameworks: Orleans, Proto.Actor, Akka.Net, Dapr.
+
 ## Environment setup
 
 ### Local tools
 
 1. Azure CLI
-2. Docker Desktop
-3. kubectx
-4. helm
-5. Dapr CLI (install then run with `dapr run --app-id myapp --app-port 5071 --dapr-http-port 3500`)
+2. Docker
+3. helm
+4. Dapr CLI and local env (install, then run with `dapr run --app-id myapp --app-port 5071 --dapr-http-port 3500`)
 
 ### Azure
 
@@ -15,14 +18,15 @@
 Create following Azure resources:
 1. Azure Storage Account - connection string is required for Orleans clustering
 2. Azure Service Bus (Standard) - used to for communication between Test Runner and Test Runner client
-3. Azure Container Registry - it will store images
+3. Azure Container Registry - it will store Docker images
 4. Azure Kubernetes Service - environment for running the tests
    1. 2 node system pool, B2ms, label: `test-role=management`
    2. 3 node user pool, D4, label: `test-role=sut`
    3. 3 node user pool, D4, label: `test-role=runner`
-   4. No availability zones
-   5. No Azure monitoring
-   6. Be sure to connect it with ACR upon creation
+   4. RBAC enabled
+   5. No availability zones
+   6. No Azure monitoring
+   7. Be sure to connect it with the ACR upon creation
 
 Get credentials for AKS, e.g.
 
