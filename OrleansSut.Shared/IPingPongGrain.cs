@@ -4,9 +4,9 @@ namespace OrleansSut.Shared;
 
 public interface IPingPongGrain : IGrainWithStringKey
 {
-    Task<PongMessage> Ping(PingMessage ping);
+    ValueTask<PongMessage> Ping(PingMessage ping);
 }
 
-public record PingMessage(string Name);
+public readonly record struct PingMessage(string Name);
 
-public record PongMessage(string Response);
+public readonly record struct PongMessage(string Response);
