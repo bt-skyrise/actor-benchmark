@@ -16,6 +16,8 @@ spec:
         prometheus.io/port: '5000'
       labels:
         app: test-runner
+        orleans/serviceId: actor-benchmark
+        orleans/clusterId: actor-benchmark
     spec:
       containers:
         - name: main
@@ -30,6 +32,29 @@ spec:
               value: actor-benchmark
             - name: Orleans__ServiceId
               value: actor-benchmark
+            - name: ORLEANS_SERVICE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['orleans/serviceId']
+            - name: ORLEANS_CLUSTER_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['orleans/clusterId']
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: DOTNET_SHUTDOWNTIMEOUTSECONDS
+              value: "120"
+
             - name: ProtoActor__ClusterName
               value: actor-benchmark
             - name: ProtoActor__AdvertisedHost

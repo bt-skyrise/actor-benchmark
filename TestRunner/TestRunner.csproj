@@ -14,8 +14,6 @@
 
     <ItemGroup>
         <PackageReference Include="MassTransit.Azure.ServiceBus.Core" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Orleans.Client" Version="3.6.0" />
-        <PackageReference Include="Microsoft.Orleans.Clustering.AzureStorage" Version="3.6.0" />
         <PackageReference Include="OpenTelemetry.Api" Version="1.2.0-rc3" />
         <PackageReference Include="OpenTelemetry.Exporter.Prometheus" Version="1.2.0-rc3" />
         <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.0.0-rc9" />
