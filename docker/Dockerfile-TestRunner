@@ -6,7 +6,6 @@ RUN addgroup --system --gid 101 app \
     && adduser --system --ingroup app --uid 101 app 
 
 ENV ASPNETCORE_URLS=http://*:5000
-ENV ASPNETCORE_URLS=http://*:5000
 ENV DOTNET_ReadyToRun=0
 ENV DOTNET_TC_QuickJitForLoops=1
 ENV DOTNET_TieredPGO=1

@@ -3,6 +3,7 @@ using System.Reflection;
 using AkkaSut.Shared;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
+using OrleansSut.Shared;
 using ProtoActorSut.Shared;
 using Serilog;
 using TestRunner.Akka;
@@ -30,7 +31,9 @@ try
     switch (actorFramework)
     {
         case "Orleans":
-            await builder.AddOrleansClient();
+            builder
+                .AddOrleans()
+                .AddOrleansTestServices();
             break;
         case "ProtoActor":
             builder
