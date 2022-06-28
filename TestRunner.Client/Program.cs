@@ -18,9 +18,23 @@ try
     
     builder.Services.AddMassTransit(busCfg =>
     {
-        busCfg.UsingAzureServiceBus(
-            (_, cfg) =>
-                cfg.Host(builder.Configuration["Bus:ServiceBusConnectionString"]));
+        if (builder.Environment.IsDevelopment())
+        {
+            busCfg.UsingRabbitMq((ctx, cfg) =>
+            {
+                cfg.Host(builder.Configuration["Bus:RabbitMq:Host"], host =>
+                {
+                    host.Username(builder.Configuration["Bus:RabbitMq:User"]);
+                    host.Password(builder.Configuration["Bus:RabbitMq:Password"]);
+                });
+            });                
+        }
+        else
+        {
+            busCfg.UsingAzureServiceBus(
+                (_, cfg) =>
+                    cfg.Host(builder.Configuration["Bus:ServiceBusConnectionString"]));
+        }
     });
 
     builder.Services.AddEndpointsApiExplorer();
