@@ -12,18 +12,41 @@ public static class MassTransitExtensions
 
         builder.Services.AddMassTransit(busCfg =>
         {
-            busCfg.UsingAzureServiceBus((ctx, cfg) =>
+            if (builder.Environment.IsDevelopment())
             {
-                cfg.Host(config["ServiceBusConnectionString"]);
-                
-                cfg.ReceiveEndpoint(endpoint, e =>
+                busCfg.UsingRabbitMq((ctx, cfg) =>
                 {
-                    e.AutoDeleteOnIdle = TimeSpan.FromMinutes(10);
-                    e.RemoveSubscriptions = true;
+                    cfg.Host(config["RabbitMq:Host"], host =>
+                    {
+                        host.Username(config["RabbitMq:User"]);
+                        host.Password(config["RabbitMq:Password"]);
+                    });
                     
-                    e.ConfigureConsumer<RunTestConsumer>(ctx);
+                    cfg.ReceiveEndpoint(endpoint, e =>
+                    {
+                        e.AutoDelete = true;
+                        e.Durable = false;
+                        
+                        e.ConfigureConsumer<RunTestConsumer>(ctx);
+                    });
+                    
+                });                
+            }
+            else
+            {
+                busCfg.UsingAzureServiceBus((ctx, cfg) =>
+                {
+                    cfg.Host(config["ServiceBusConnectionString"]);
+                
+                    cfg.ReceiveEndpoint(endpoint, e =>
+                    {
+                        e.AutoDeleteOnIdle = TimeSpan.FromMinutes(10);
+                        e.RemoveSubscriptions = true;
+                    
+                        e.ConfigureConsumer<RunTestConsumer>(ctx);
+                    });
                 });
-            });
+            }
             
             busCfg.AddConsumers(Assembly.GetExecutingAssembly());
         });

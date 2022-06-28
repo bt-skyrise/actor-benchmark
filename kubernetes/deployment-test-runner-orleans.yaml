@@ -51,6 +51,7 @@ spec:
         orleans/serviceId: actor-benchmark
         orleans/clusterId: actor-benchmark
     spec:
+      serviceAccountName: test-runner
       containers:
         - name: main
           image: abimgregistry.azurecr.io/test-runner:latest
