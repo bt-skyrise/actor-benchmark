@@ -7,10 +7,9 @@ public class PingPongActor : ReceiveActor
 {
     public PingPongActor()
     {
-        ReceiveAsync<PingMessage>(ping =>
+        Receive<PingMessage>(ping =>
         {
             Sender.Tell(new PongMessage("Hello " + ping.Name));
-            return Task.CompletedTask;
         });
     }
 }
