@@ -153,7 +153,7 @@ kubectl apply -n benchmark -f kubernetes/deployment-proto-actor-sut.yaml
 Replace Azure Service bus connection string string in `kubernetes/deployment-test-runner-proto-actor.yaml`
 
 ```shell
-kubectl apply -n benchmark -f kubernetes/deployment-test-runner-proto-actor.yaml
+kubectl apply -n benchmark -f kubernetes/deployment-test-runner-proto-actor-raw.yaml
 ```
 
 ### Akka tests
